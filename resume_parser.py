@@ -4,27 +4,19 @@ import spacy
 nlp = spacy.load("en_core_web_sm")
 
 SKILLS = {
-<<<<<<< HEAD
-    # Languages
     "c", "c++", "cpp", "java", "python", "javascript", "typescript",
     "go", "golang", "rust", "kotlin", "swift", "scala", "ruby",
     "php", "r", "matlab", "sql", "nosql", "bash", "shell", "perl",
-    # Web
     "html", "css", "react", "angular", "vue", "svelte", "nextjs",
     "tailwind", "bootstrap", "graphql", "rest", "restful",
-    # Backend / Frameworks
     "node", "nodejs", "spring", "django", "flask", "fastapi",
     "express", "laravel", "rails",
-    # Data / ML
     "pandas", "numpy", "tensorflow", "pytorch", "keras", "scikit-learn",
     "sklearn", "matplotlib", "seaborn", "opencv", "nlp", "llm",
-    # Big Data / Cloud
     "kafka", "spark", "hadoop", "aws", "azure", "gcp",
     "s3", "ec2", "lambda", "bigquery", "snowflake", "databricks",
-    # DevOps / Tools
     "linux", "unix", "docker", "kubernetes", "git", "github",
-    "gitlab", "jenkins", "terraform", "ansible", "ci/cd",
-    # Databases
+    "gitlab", "jenkins", "terraform", "ansible",
     "mysql", "postgresql", "mongodb", "redis", "elasticsearch",
     "sqlite", "oracle", "cassandra",
 }
@@ -60,100 +52,37 @@ INVALID_WORDS = {
 }
 
 
-# ── Extractors ─────────────────────────────────────────────────────────────────
-
-def extract_email(text: str):
-=======
-    "c", "c++", "cpp", "java", "python", "javascript", "typescript",
-    "go", "golang", "rust", "kotlin", "swift", "scala", "ruby",
-    "php", "r", "matlab", "sql", "nosql",
-    "html", "css", "react", "angular", "vue",
-    "node", "nodejs", "spring", "django", "flask",
-    "kafka", "spark", "hadoop", "aws", "azure", "gcp",
-    "linux", "unix", "docker", "kubernetes"
-}
-
-EMAIL_REGEX = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
-PHONE_REGEX = r"\b\d{10}\b"
-
-
 def extract_email(text):
->>>>>>> e2edd42fa0f42d9be49c6cb7f665f80eabb828cb
     m = re.search(EMAIL_REGEX, text)
     return m.group(0) if m else None
 
 
-<<<<<<< HEAD
-def extract_phone(text: str):
+def extract_phone(text):
     m = re.search(PHONE_REGEX, text)
-    if m:
-        # Normalise: strip spaces / dashes for display
-        raw = m.group(0).strip()
-        return raw
-    return None
+    return m.group(0).strip() if m else None
 
 
-def extract_linkedin(text: str):
+def extract_linkedin(text):
     m = re.search(LINKEDIN_REGEX, text, re.IGNORECASE)
     return "https://" + m.group(0) if m else None
 
 
-def extract_github(text: str):
+def extract_github(text):
     m = re.search(GITHUB_REGEX, text, re.IGNORECASE)
     return "https://" + m.group(0) if m else None
 
 
-def extract_skills(text: str):
+def extract_skills(text):
     text_lower = text.lower()
     found = set()
     for skill in SKILLS:
-        # Word-boundary aware match so "r" doesn't match "react" etc.
         pattern = r"(?<![a-zA-Z0-9_+#])" + re.escape(skill) + r"(?![a-zA-Z0-9_+#])"
         if re.search(pattern, text_lower):
             found.add(skill)
     return sorted(found)
 
 
-def extract_name(text: str):
-=======
-def extract_phone(text):
-    m = re.search(PHONE_REGEX, text)
-    return m.group(0) if m else None
-
-
-def extract_skills(text):
-    text_lower = text.lower()
-    return sorted({s for s in SKILLS if s in text_lower})
-
-
 def extract_name(text):
-    INVALID_WORDS = {
-        "award","awards","winner","winning","finalist","hack","hackathon",
-        "project","projects","pipeline","system","framework","platform",
-        "application","app","tool","tools","model","models","algorithm",
-        "solution","solutions","module","modules","service","services",
-        "api","apis","microservice","microservices",
-        "engineer","engineering","developer","development","software",
-        "backend","frontend","fullstack","intern","internship","trainee",
-        "lead","manager","architect","consultant",
-        "best","top","rank","ranking","achievement","achievements",
-        "certification","certifications","certificate","certified",
-        "experience","experiences","education","skills","skill",
-        "technology","technologies","tech","stack",
-        "kafka","spark","hadoop","aws","azure","gcp","docker","kubernetes",
-        "react","angular","vue","spring","django","flask","node","nodejs",
-        "java","python","c","cpp","c++","javascript","typescript","sql","r",
-        "linux","unix","windows","android","ios",
-        "college","university","institute","school","department",
-        "bachelor","master","degree","btech","mtech","phd",
-        "research","paper","publication","conference","journal",
-        "team","teams","group","organization","company","startup",
-        "role","roles","responsibility","responsibilities",
-        "summary","profile","objective","overview",
-        "location","address","contact","email","phone"
-    }
-
->>>>>>> e2edd42fa0f42d9be49c6cb7f665f80eabb828cb
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     top_text = "\n".join(lines[:25])
     doc = nlp(top_text)
@@ -161,7 +90,6 @@ def extract_name(text):
     for ent in doc.ents:
         if ent.label_ != "PERSON":
             continue
-<<<<<<< HEAD
         candidate = ent.text.strip()
         if "\n" in candidate:
             continue
@@ -179,7 +107,6 @@ def extract_name(text):
             continue
         return candidate
 
-    # Fallback: first non-contact, non-keyword line that looks like a name
     for line in lines[:10]:
         words = line.strip().split()
         if 2 <= len(words) <= 4 and all(
@@ -189,42 +116,11 @@ def extract_name(text):
             for w in words
         ):
             return line.strip()
-=======
-
-        candidate = ent.text.strip()
-
-        if "\n" in candidate:
-            continue
-
-        words = candidate.split()
-
-        if not (2 <= len(words) <= 3):
-            continue
-
-        bad = False
-        for w in words:
-            lw = w.lower()
-            if not w.isalpha():
-                bad = True
-                break
-            if lw in SKILLS or lw in INVALID_WORDS:
-                bad = True
-                break
-            if not w[0].isupper():
-                bad = True
-                break
-
-        if bad:
-            continue
-
-        return candidate
->>>>>>> e2edd42fa0f42d9be49c6cb7f665f80eabb828cb
 
     return None
 
 
-<<<<<<< HEAD
-def extract_education(text: str):
+def extract_education(text):
     edu_keywords = [
         "bachelor", "master", "b.tech", "m.tech", "b.e", "m.e",
         "b.sc", "m.sc", "phd", "ph.d", "mba", "degree", "diploma",
@@ -233,71 +129,41 @@ def extract_education(text: str):
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     education = []
     for i, line in enumerate(lines):
-        lower = line.lower()
-        if any(k in lower for k in edu_keywords):
-            # Include the next line too (often contains year or institution)
+        if any(k in line.lower() for k in edu_keywords):
             block = line
             if i + 1 < len(lines):
                 block = line + " — " + lines[i + 1]
             education.append(block)
-    # Deduplicate while preserving order
     seen = set()
     deduped = []
     for e in education:
-        key = e.lower()
-        if key not in seen:
-            seen.add(key)
+        if e.lower() not in seen:
+            seen.add(e.lower())
             deduped.append(e)
     return deduped
 
 
-def extract_experience(text: str):
-    """Extract rough work experience entries by looking for year patterns."""
+def extract_experience(text):
     year_pattern = re.compile(r"(19|20)\d{2}")
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     experience = []
     for line in lines:
         if year_pattern.search(line) and len(line) > 15:
             lower = line.lower()
-            # Skip lines that are clearly education
             if any(k in lower for k in ["bachelor", "master", "b.tech", "phd", "university", "college"]):
                 continue
             experience.append(line)
-    return experience[:10]  # cap to avoid noise
-
-
-# ── Main entry ─────────────────────────────────────────────────────────────────
-
-def parse_resume(text: str) -> dict:
-=======
-def extract_education(text):
-    edu_keywords = ["bachelor", "master", "b.tech", "m.tech", "degree"]
-    lines = [l.strip() for l in text.splitlines() if l.strip()]
-    education = []
-
-    for line in lines:
-        lower = line.lower()
-        if any(k in lower for k in edu_keywords):
-            education.append(line)
-
-    return education
+    return experience[:10]
 
 
 def parse_resume(text):
->>>>>>> e2edd42fa0f42d9be49c6cb7f665f80eabb828cb
     return {
         "name": extract_name(text),
         "email": extract_email(text),
         "phone": extract_phone(text),
-<<<<<<< HEAD
         "linkedin": extract_linkedin(text),
         "github": extract_github(text),
         "skills": extract_skills(text),
         "education": extract_education(text),
         "experience_hints": extract_experience(text),
     }
-=======
-        "skills": extract_skills(text),
-        "education": extract_education(text)
-    }
->>>>>>> e2edd42fa0f42d9be49c6cb7f665f80eabb828cb

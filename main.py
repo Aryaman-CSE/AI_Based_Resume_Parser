@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse
 import pdfplumber
 import docx
 import pytesseract
@@ -21,10 +21,6 @@ SUPPORTED_TYPES = {
     "image/jpg": "image",
     "text/plain": "txt",
 }
-
-@app.get("/")
-async def serve_ui():
-    return FileResponse("templates/index.html")
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     text = ""
