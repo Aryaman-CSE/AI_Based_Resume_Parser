@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 import pdfplumber
 import docx
 import pytesseract
@@ -8,7 +8,6 @@ import io
 import os
 from resume_parser import parse_resume
 
-# Windows: hardcode Tesseract path so pytesseract can find it
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 app = FastAPI(title="AI Resume Parser")
@@ -23,6 +22,9 @@ SUPPORTED_TYPES = {
     "text/plain": "txt",
 }
 
+@app.get("/")
+async def serve_ui():
+    return FileResponse("templates/index.html")
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     text = ""
@@ -32,7 +34,6 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
             if extracted:
                 text += extracted + "\n"
     return text.strip()
-
 
 def extract_text_from_docx(file_bytes: bytes) -> str:
     doc = docx.Document(io.BytesIO(file_bytes))
@@ -44,16 +45,13 @@ def extract_text_from_docx(file_bytes: bytes) -> str:
                     paragraphs.append(cell.text.strip())
     return "\n".join(paragraphs)
 
-
 def extract_text_from_image(file_bytes: bytes) -> str:
     image = Image.open(io.BytesIO(file_bytes))
     text = pytesseract.image_to_string(image)
     return text.strip()
 
-
 def extract_text_from_txt(file_bytes: bytes) -> str:
     return file_bytes.decode("utf-8", errors="ignore").strip()
-
 
 def get_file_type(filename: str, content_type: str) -> str:
     ext = os.path.splitext(filename)[-1].lower()
@@ -67,7 +65,6 @@ def get_file_type(filename: str, content_type: str) -> str:
         ".txt": "txt",
     }
     return ext_map.get(ext) or SUPPORTED_TYPES.get(content_type)
-
 
 @app.post("/parse-resume")
 async def parse_resume_api(file: UploadFile = File(...)):
@@ -102,7 +99,6 @@ async def parse_resume_api(file: UploadFile = File(...)):
     result["char_count"] = len(text)
 
     return JSONResponse(content=result)
-
 
 @app.get("/health")
 async def health():

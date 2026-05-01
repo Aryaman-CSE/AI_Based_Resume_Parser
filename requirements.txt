@@ -3,6 +3,9 @@ uvicorn
 spacy
 pdfplumber
 python-multipart
+<<<<<<< HEAD
 python-docx
 pytesseract
 Pillow
+=======
+>>>>>>> e2edd42fa0f42d9be49c6cb7f665f80eabb828cb
